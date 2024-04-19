@@ -14,22 +14,23 @@ const options = {
   },
 };
 
-function getCatFact() {
-  Promise.all([
-    fetch(url, options),
-    fetch(catUrl),
-    {
-      headers: {
-        'x-api-key': catApiKey,
-      },
-    },
-  ])
-    .then(([factRes, imgRes]) => Promise.all([factRes.json(), imgRes.json()]))
-    .then(([factData, imgData]) => {
-      postCatFact(factData);
-      postCatImg(imgData);
-    })
-    .catch((error) => console.error('Error fetching data:', error));
+async function getCatFact() {
+  try {
+    const [factRes, imgRes] = await Promise.all([
+      fetch(url, options),
+      fetch(catUrl, { headers: { 'x-api-key': catApiKey } }),
+    ]);
+
+    const [factData, imgData] = await Promise.all([
+      factRes.json(),
+      imgRes.json(),
+    ]);
+
+    postCatFact(factData);
+    postCatImg(imgData);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
 }
 
 function postCatFact(post) {
